@@ -63,7 +63,7 @@ func (mdl *Model) TrainMiniBatch(inputs [][]float64, outputs []float64, epochs, 
 	if batchSize >= m {
 		mdl.TrainBatch(inputs, outputs, epochs)
 		return
-	} else if batchSize == 1 {
+	} else if batchSize <= 1 {
 		mdl.TrainSGD(inputs, outputs, epochs)
 		return
 	}
