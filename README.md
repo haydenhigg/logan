@@ -9,8 +9,9 @@ Performant logistic regression in Go.
   - `func TrainBatch(inputs [][]float64, outputs []float64, epochs int)`
   - `func TrainMiniBatch(inputs [][]float64, outputs []float64, epochs, batchSize int)`
   - `func TrainSGD(inputs [][]float64, outputs []float64, epochs int)`
+  - `func Train(input []float64, output float64)`
   - `func Predict(input []float64) float64`
 
 ## notes
-- Each value of `outputs` should be 0 or 1.
+- All output values used as training parameters should be 0 or 1.
 - `Predict` returns the probability, **not** 0 or 1.
