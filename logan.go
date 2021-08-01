@@ -113,18 +113,21 @@ func (mdl *Model) TrainSGD(inputs [][]float64, outputs []float64, epochs int) {
 	}
 
 	var index int
-	var delta float64
 
 	for epoch := 0; epoch < epochs; epoch++ {
 		index = mdl.rand.Intn(m)
-		delta = mdl.eta * (mdl.Predict(inputs[index]) - outputs[index])
-
-		for j, feature := range inputs[index] {
-			mdl.Weights[j] -= delta * feature
-		}
-
-		mdl.Bias -= delta
+		mdl.Train(inputs[index], outputs[index])
 	}
+}
+
+func (mdl *Model) Train(input []float64, output float64) {
+	delta := mdl.eta * (mdl.Predict(input) - output)
+
+	for j, feature := range input {
+		mdl.Weights[j] -= delta * feature
+	}
+
+	mdl.Bias -= delta
 }
 
 func (mdl *Model) Predict(input []float64) float64 {
