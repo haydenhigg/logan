@@ -1,3 +1,5 @@
+package logan
+
 func (mdl *Model) TrainBatch(inputs [][]float64, outputs []float64, epochs int) {
 	n := len(inputs[0])
 
