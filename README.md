@@ -11,6 +11,8 @@ Performant logistic regression in Go.
   - `func TrainSGD(inputs [][]float64, outputs []float64, epochs int)`
   - `func Train(input []float64, output float64)`
   - `func Predict(input []float64) float64`
+- `func Marshal(mdl *Model) ([]byte, error)`
+- `func Unmarshal(data []byte) (*Model, error)`
 
 ## notes
 - All output values used as training parameters should be 0 or 1.
