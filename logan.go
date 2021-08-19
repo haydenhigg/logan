@@ -8,9 +8,9 @@ import (
 
 type Model struct {
 	Weights []float64  `json:"weights"`
-	Bias	float64    `json:"bias"`
-	Eta		float64    `json:"learningRate"`
-	rand	*rand.Rand
+	Bias    float64    `json:"bias"`
+	Eta     float64    `json:"learningRate"`
+	rand    *rand.Rand
 }
 
 func New(learningRate float64) *Model {
