@@ -1,42 +1,29 @@
 package logan
 
 func (mdl *Model) TrainBatch(inputs [][]float64, outputs []float64, epochs int) {
+	mdl.calculateMeans(inputs)
+
 	n := len(inputs[0])
 
 	if len(mdl.Weights) == 0 {
 		mdl.Weights = make([]float64, n)
 	}
 
-	batchEta := mdl.Eta / float64(len(inputs))
-	gradient := struct { weights []float64; bias float64 } {
-		weights: make([]float64, n),
-		bias: 0,
-	}
-
-	var delta float64
+	eta := mdl.LearningRate / float64(len(inputs))
+	gradient := Gradient { weights: make([]float64, n) }
 
 	for epoch := 0; epoch < epochs; epoch++ {
 		for i, input := range inputs {
-			delta = mdl.Predict(input) - outputs[i]
-
-			for j, feature := range input {
-				gradient.weights[j] -= delta * feature
-			}
-
-			gradient.bias -= delta
+			mdl.update(&gradient, input, outputs[i])
 		}
 
-		for j, partial := range gradient.weights {
-			mdl.Weights[j] += batchEta * partial
-			gradient.weights[j] = 0
-		}
-
-		mdl.Bias += batchEta * gradient.bias
-		gradient.bias = 0
+		mdl.descend(&gradient, eta)
 	}
 }
 
 func (mdl *Model) TrainMiniBatch(inputs [][]float64, outputs []float64, epochs, batchSize int) {
+	mdl.calculateMeans(inputs)
+	
 	m := len(inputs)
 
 	if batchSize >= m {
@@ -53,38 +40,24 @@ func (mdl *Model) TrainMiniBatch(inputs [][]float64, outputs []float64, epochs, 
 		mdl.Weights = make([]float64, n)
 	}
 
-	batchEta := mdl.Eta / float64(batchSize)
-	gradient := struct { weights []float64; bias float64 } {
-		weights: make([]float64, n),
-		bias: 0,
-	}
+	eta := mdl.LearningRate / float64(batchSize)
+	gradient := Gradient { weights: make([]float64, n) }
 
 	var index int
-	var delta float64
 
 	for epoch := 0; epoch < epochs; epoch++ {
 		for i := 0; i < batchSize; i++ {
 			index = mdl.rand.Intn(m)
-			delta = mdl.Predict(inputs[index]) - outputs[index]
-
-			for j, feature := range inputs[index] {
-				gradient.weights[j] -= delta * feature
-			}
-
-			gradient.bias -= delta
+			mdl.update(&gradient, inputs[index], outputs[index])
 		}
 
-		for j, partial := range gradient.weights {
-			mdl.Weights[j] += batchEta * partial
-			gradient.weights[j] = 0
-		}
-
-		mdl.Bias += batchEta * gradient.bias
-		gradient.bias = 0
+		mdl.descend(&gradient, eta)
 	}
 }
 
 func (mdl *Model) TrainSGD(inputs [][]float64, outputs []float64, epochs int) {
+	mdl.calculateMeans(inputs)
+	
 	m := len(inputs)
 
 	if len(mdl.Weights) == 0 {
@@ -100,15 +73,20 @@ func (mdl *Model) TrainSGD(inputs [][]float64, outputs []float64, epochs int) {
 }
 
 func (mdl *Model) Train(input []float64, output float64) {
-	delta := mdl.Eta * (mdl.Predict(input) - output)
+	scaled := subtract(input, mdl.Means)
+	delta := mdl.predict(scaled) - output
 
-	for j, feature := range input {
-		mdl.Weights[j] -= delta * feature
+	for j, feature := range scaled {
+		mdl.Weights[j] -= delta * feature + mdl.L2Parameter * mdl.Weights[j]
 	}
 
 	mdl.Bias -= delta
 }
 
-func (mdl *Model) Predict(input []float64) float64 {
+func (mdl *Model) predict(input []float64) float64 {
 	return sigmoid(dot(input, mdl.Weights) + mdl.Bias)
+}
+
+func (mdl *Model) Predict(input []float64) float64 {
+	return mdl.predict(subtract(input, mdl.Means))
 }
