@@ -68,11 +68,11 @@ func (mdl *Model) TrainSGD(inputs [][]float64, outputs []float64, epochs int) {
 
 	for epoch := 0; epoch < epochs; epoch++ {
 		index = mdl.rand.Intn(m)
-		mdl.Train(inputs[index], outputs[index])
+		mdl.train(inputs[index], outputs[index])
 	}
 }
 
-func (mdl *Model) Train(input []float64, output float64) {
+func (mdl *Model) train(input []float64, output float64) {
 	scaled := subtract(input, mdl.Means)
 	delta := mdl.predict(scaled) - output
 
