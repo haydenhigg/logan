@@ -1,5 +1,5 @@
 # logan
-Performant logistic regression in Go.
+Easy-to-use and performant Go implementation of logistic regression with regularization.
 
 ## interface
 - `func New(learningRate float64) *Model`
